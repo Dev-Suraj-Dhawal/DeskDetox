@@ -1,0 +1,24 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "deskdetox"
+version = "0.1.0"
+description = "AI-powered outdoor micro-adventure guide for remote workers"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "google-antigravity",
+    "rich",
+    "requests",
+    "geocoder",
+    "python-dotenv",
+]
+
+[project.scripts]
+deskdetox = "main:main"
+
+[tool.setuptools]
+packages = ["deskdetox"]
+py-modules = ["main"]
