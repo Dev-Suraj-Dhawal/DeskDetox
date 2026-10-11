@@ -1,0 +1,5 @@
+google-antigravity
+requests
+geocoder
+rich
+python-dotenv
