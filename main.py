@@ -13,7 +13,11 @@ Usage:
 import sys
 import asyncio
 import argparse
+import logging  # <-- ADDED
 from typing import Optional
+
+# <-- ADDED: Mute standard warnings so they don't ruin the CLI UI during API retries -->
+logging.getLogger().setLevel(logging.ERROR)
 
 # Ensure Windows terminals handle UTF-8 cleanly
 if sys.platform == "win32":
