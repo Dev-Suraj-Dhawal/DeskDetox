@@ -10,6 +10,8 @@ Markdown
 [![Open-Meteo](https://img.shields.io/badge/Weather-Open--Meteo-brightgreen.svg)](https://open-meteo.com/)
 [![OpenStreetMap](https://img.shields.io/badge/Map%20Data-OpenStreetMap%20Overpass-7EB35B.svg)](https://www.openstreetmap.org/)
 
+
+![DeskDetox CLI Demo](demo.png)
 ---
 
 ## 🧭 Overview
