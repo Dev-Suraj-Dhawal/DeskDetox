@@ -90,11 +90,11 @@ async def run_mission_flow(minutes: str) -> None:
     """
     from google.antigravity import Agent
 
-    # Prepare prompt
     user_prompt = (
-        f"I have {minutes} minutes for a break right now. "
-        "Find my location, local weather, and nearby green spaces, "
-        "and give me my 2-sentence phone-free outdoor mission immediately."
+    f"I have exactly {minutes} minutes for a break right now. "
+    f"This means I can only walk {int(minutes)/2} minutes away before turning back. "
+    "Check the current weather. Find the nearest green space within this specific walking radius. "
+    "Give me a highly specific, 2-sentence phone-free outdoor mission."
     )
 
     config = build_agent_config()
