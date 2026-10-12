@@ -13,10 +13,10 @@ Usage:
 import sys
 import asyncio
 import argparse
-import logging  # <-- ADDED
+import logging  
 from typing import Optional
 
-# <-- ADDED: Mute standard warnings so they don't ruin the CLI UI during API retries -->
+# Mute standard warnings so they don't ruin the CLI UI during API retries 
 logging.getLogger().setLevel(logging.ERROR)
 
 # Ensure Windows terminals handle UTF-8 cleanly
@@ -30,11 +30,13 @@ if sys.platform == "win32":
         pass
 
 from deskdetox.cli import interactive_loop, run_mission_flow, print_banner, check_api_key_or_warn, console
-from deskdetox.tools import get_location, get_weather, get_nearby_nature
+
+# ADDED: get_air_quality to the import
+from deskdetox.tools import get_location, get_weather, get_nearby_nature, get_air_quality
 
 
 def run_diagnostics() -> None:
-    """Smoke test and print diagnostics for the three open data tools."""
+    """Smoke test and print diagnostics for the four open data tools."""
     from rich.table import Table
     from rich.panel import Panel
 
@@ -79,10 +81,21 @@ def run_diagnostics() -> None:
     console.print(nature_table)
     console.print()
 
+    # 4. Test Air Quality Tool (ADDED)
+    console.print(f"[cyan]4. Testing get_air_quality({lat}, {lon})...[/cyan]")
+    aqi_data = get_air_quality(lat, lon)
+    aqi_table = Table(title="Open-Meteo Air Quality & UV", show_header=True)
+    aqi_table.add_column("Metric", style="bold yellow")
+    aqi_table.add_column("Reading", style="white")
+    for k, v in aqi_data.items():
+        aqi_table.add_row(k, str(v))
+    console.print(aqi_table)
+    console.print()
+
     console.print(
         Panel(
-            "[bold green]✅ All 3 Open Data Tools executed successfully![/bold green]\n"
-            "The Antigravity Agent can use these tools to craft localized, weather-aware missions.",
+            "[bold green]✅ All 4 Open Data Tools executed successfully![/bold green]\n"
+            "The Antigravity Agent can use these tools to craft localized, weather-aware, and health-safe missions.",
             border_style="green",
         )
     )
@@ -104,7 +117,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--test-tools",
         action="store_true",
-        help="Run live verification of open data sensory tools (Location, Weather, OpenStreetMap).",
+        help="Run live verification of open data sensory tools (Location, Weather, OpenStreetMap, Air Quality).",
     )
     return parser.parse_args()
 
