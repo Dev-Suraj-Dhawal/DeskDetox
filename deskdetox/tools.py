@@ -44,11 +44,7 @@ WMO_WEATHER_CODES: Dict[int, str] = {
 
 
 def get_location() -> Dict[str, Any]:
-    """Get the user's current city, latitude, and longitude based on their IP address.
-
-    Returns:
-        dict: A dictionary containing 'city', 'latitude', 'longitude', 'region', and 'country'.
-    """
+    """Get the user's current city, latitude, and longitude based on their IP address."""
     # 1. Try geocoder IP lookup
     try:
         g = geocoder.ip("me")
@@ -96,16 +92,7 @@ def get_location() -> Dict[str, Any]:
 
 
 def get_weather(lat: float, lon: float) -> Dict[str, Any]:
-    """Fetch current weather metrics from the free Open-Meteo API.
-
-    Args:
-        lat: Latitude of the location.
-        lon: Longitude of the location.
-
-    Returns:
-        dict: Information on current temperature (°C/°F), weather condition,
-              daylight status (day or night), wind speed, and apparent temperature.
-    """
+    """Fetch current weather metrics from the free Open-Meteo API."""
     url = "https://api.open-meteo.com/v1/forecast"
     params = {
         "latitude": lat,
@@ -160,23 +147,13 @@ def get_weather(lat: float, lon: float) -> Dict[str, Any]:
 
 
 def get_nearby_nature(lat: float, lon: float, radius: int = 1500) -> Dict[str, Any]:
-    """Query OpenStreetMap Overpass API for nearby parks, trails, gardens, and green spaces.
-
-    Args:
-        lat: Latitude of the search center.
-        lon: Longitude of the search center.
-        radius: Search radius in meters (default 1500m / ~15-20 min walk).
-
-    Returns:
-        dict: A list of nearby nature spots with names, types, and distance notes.
-    """
+    """Query OpenStreetMap Overpass API for nearby parks, trails, gardens, and green spaces."""
     overpass_endpoints = [
         "https://overpass-api.de/api/interpreter",
         "https://lz4.overpass-api.de/api/interpreter",
         "https://overpass.kumi.systems/api/interpreter",
     ]
 
-    # Overpass QL query looking for parks, nature reserves, gardens, viewpoints, paths, and water
     query = f"""
     [out:json][timeout:15];
     (
@@ -229,7 +206,7 @@ def get_nearby_nature(lat: float, lon: float, radius: int = 1500) -> Dict[str, A
                     return {
                         "count": len(places),
                         "radius_meters": radius,
-                        "green_spaces": places[:8],  # Return up to 8 distinct spots
+                        "green_spaces": places[:8],
                         "status": "success",
                     }
                 else:
@@ -246,7 +223,6 @@ def get_nearby_nature(lat: float, lon: float, radius: int = 1500) -> Dict[str, A
         except Exception:
             continue
 
-    # Fallback if Overpass servers are unreachable/timing out
     return {
         "count": 1,
         "radius_meters": radius,
@@ -256,3 +232,41 @@ def get_nearby_nature(lat: float, lon: float, radius: int = 1500) -> Dict[str, A
         "note": "Overpass API temporarily congested. Advise the user to find the closest trees or open outdoor space.",
         "status": "fallback",
     }
+
+
+def get_air_quality(lat: float, lon: float) -> Dict[str, Any]:
+    """Fetch real-time air quality (AQI) and UV Index from Open-Meteo."""
+    url = "https://air-quality-api.open-meteo.com/v1/air-quality"
+    params = {
+        "latitude": lat,
+        "longitude": lon,
+        "current": ["us_aqi", "pm2_5", "uv_index"]
+    }
+    
+    try:
+        response = requests.get(url, params=params, timeout=8)
+        response.raise_for_status()
+        data = response.json()
+        current = data.get("current", {})
+        
+        aqi = current.get("us_aqi", 0)
+        uv = current.get("uv_index", 0)
+        
+        aqi_warning = "Hazardous" if aqi > 100 else "Safe"
+        uv_warning = "High (Needs Shade)" if uv > 6 else "Safe"
+
+        return {
+            "aqi": aqi,
+            "aqi_status": aqi_warning,
+            "pm2_5_ug_m3": current.get("pm2_5", "Unknown"),
+            "uv_index": uv,
+            "uv_status": uv_warning,
+            "status": "success"
+        }
+    except Exception as exc:
+        return {
+            "status": "error",
+            "message": f"Failed to retrieve air quality data: {exc}",
+            "aqi_status": "Unknown",
+            "uv_status": "Unknown"
+        }
